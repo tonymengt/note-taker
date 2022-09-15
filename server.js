@@ -24,24 +24,54 @@ function createNotes (input, notesData) {
             ),
         JSON.stringify(notesData, null, 2)
     )
+    return data;
+}
+// filter
+function deleteNotes (id, notesData) {
+    let newData = notesData.filter(item => {
+        return item.id !== id})
+    console.log(newData)
+    fs.writeFileSync(
+        path.join(__dirname, './db/db.json'),
+        JSON.stringify(newData, null, 2)
+    )
+    return newData;
+}
+// find and splice
+function deleteNote (id, notesData) {
+    const item = notesData.findIndex(index => {index.id == id})
+    notesData.splice(item, 1);
+
+    fs.writeFileSync(
+        path.join(__dirname, './db/db.json'),
+        JSON.stringify(notesData, null, 2)
+    )
+    return notesData
 }
 
-
-
 app.get('/api/notes', (req, res) => {
-    res.json(notesData);
+    return res.json(notesData);
 });
 
 app.post('/api/notes', (req, res) => {
     req.body.id = uuidv4()
-    // console.log(req.body.id)
-    console.log(req.body);
-
     const notes = createNotes(req.body, notesData);
     res.json(notes);
+})
+
+app.delete('/api/notes/:id', (req, res) => {
+    let data = deleteNote(req.params.id, notesData);
+    res.json(data)
+})
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, './public/index.html'))
+})
+
+app.get('/notes', (req, res) =>{
+    res.sendFile(path.join(__dirname, './public/notes.html'))
 })
 
 app.listen(PORT, () => {
     console.log(`api server now on ${PORT}!`);
 })
-
